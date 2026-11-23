@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
-import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(32)
@@ -24,9 +23,6 @@ class LiveStream(db.Model):
     video_id = db.Column(db.String(50), nullable=False)
     stream_key = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(20), default='inactive', nullable=False)
-    created_at = db.Column(db.DateTime, nullable=True)
-    paused_at = db.Column(db.DateTime, nullable=True)
-    ended_at = db.Column(db.DateTime, nullable=True)
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,6 +45,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             session['username'] = username
+            session['user_id'] = user.id
             return redirect(url_for('dashboard'))
         flash('Invalid username or password', 'error')
     return render_template('login.html')
@@ -57,8 +54,7 @@ def login():
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
-    return render_template('dashboard.html', user=user)
+    return render_template('dashboard.html')
 
 @app.route('/logout')
 def logout():
@@ -69,19 +65,21 @@ def logout():
 def create_live():
     if 'username' not in session:
         return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
+    user_id = session.get('user_id')
     if request.method == 'POST':
         video_id = request.form['video_id']
         stream_key = request.form['stream_key']
-        video_file = request.files['video_file']
-        if video_file:
+        video_file = request.files.get('video_file')
+        if video_file and video_file.filename:
             filename = video_file.filename
-            video_file.save(f'uploads/{filename}')
-            file = File(user_id=user.id, filename=filename, size_bytes=os.path.getsize(f'uploads/{filename}'))
+            uploads_dir = os.path.join(app.root_path, 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            video_file.save(os.path.join(uploads_dir, filename))
+            file = File(user_id=user_id, filename=filename, size_bytes=os.path.getsize(os.path.join(uploads_dir, filename)))
             db.session.add(file)
             db.session.commit()
         live_stream = LiveStream(
-            user_id=user.id,
+            user_id=user_id,
             video_id=video_id,
             stream_key=stream_key,
             status='active'
@@ -96,19 +94,18 @@ def create_live():
 def files():
     if 'username' not in session:
         return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
-    files = File.query.filter_by(user_id=user.id).all()
+    user_id = session.get('user_id')
+    files = File.query.filter_by(user_id=user_id).all()
     return render_template('files.html', files=files)
 
 @app.route('/settings')
 def settings():
     if 'username' not in session:
         return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
-    return render_template('settings.html', user=user)
+    return render_template('settings.html')
 
 if __name__ == '__main__':
     os.makedirs(app.instance_path, exist_ok=True)
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=False)
