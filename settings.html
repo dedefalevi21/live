@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan - Streamify</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #6366f1;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #1e1b4b;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #334155;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #edf2f7;
+            color: #1e293b;
+            font-size: 16px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .success-message {
+            background: #dcfce7;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .info-message {
+            background: #f0fdf4;
+            color: #059669;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .info-message::before {
+            content: "✓";
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pengaturan</h1>
+        <p class="info-message">Mengubah zona waktu hanya mempengaruhi tampilan waktu di dashboard Anda. Streaming yang sedang berjalan tetap berjalan sesuai waktu asli.</p>
+
+        <h2>Ubah Sandi</h2>
+        <form id="change-password-form">
+            <div class="form-group">
+                <label for="old_password">Sandi Lama</label>
+                <input type="password" id="old_password" placeholder="Masukkan sandi lama" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password">Sandi Baru</label>
+                <input type="password" id="new_password" placeholder="Masukkan sandi baru" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Konfirmasi Sandi Baru</label>
+                <input type="password" id="confirm_password" placeholder="Masukkan sandi baru lagi" required>
+            </div>
+            <button type="submit">Ubah Sandi</button>
+        </form>
+
+        <h2>Zona Waktu</h2>
+        <div class="form-group">
+            <label for="timezone">Pilih Zona Waktu</label>
+            <select id="timezone" required>
+                <option value="">Pilih zona waktu...</option>
+                <option value="WIB">WIB - Waktu Indonesia Barat (UTC+7)</option>
+                <option value="WITA">WITA - Waktu Indonesia Tengah (UTC+8)</option>
+                <option value="WIT">WIT - Waktu Indonesia Timur (UTC+9)</option>
+            </select>
+        </div>
+        <button type="submit" id="save-timezone-btn">Simpan Zona Waktu</button>
+
+        <div id="success-message" class="success-message">Zona waktu berhasil diubah!</div>
+        <div id="info-message" class="info-message">Streaming yang sedang berjalan tetap berjalan sesuai waktu asli.</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="files-container">
+    <div class="section-header">
+        <h1 class="card-title">File Video</h1>
+        <a href="{{ url_for('create_live') }}" class="btn btn-primary">+ Upload Video</a>
+    </div>
+
+    <div class="card">
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nama File</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if files %}
+                        {% for file in files %}
+                        <tr>
+                            <td>{{ file.filename }}</td>
+                            <td>
+                                <span class="badge badge-active">Tersedia</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm">Pratinjau</button>
+                                <button class="btn btn-danger btn-sm">Hapus</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">Belum ada file yang diunggah</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

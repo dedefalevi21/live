@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="create-live-container">
+    <div class="card">
+        <h1 class="card-title">Buat Live Baru</h1>
+        <form method="POST" enctype="multipart/form-data" class="live-form">
+            <div class="form-group">
+                <label for="video_id">ID Video</label>
+                <input type="text" id="video_id" name="video_id" required placeholder="Masukkan ID video (contoh: 1794919900127)">
+            </div>
+
+            <div class="form-group">
+                <label for="video_file">Video File</label>
+                <input type="file" id="video_file" name="video_file" accept=".mp4,.mkv" required>
+                <small class="text-muted">Hanya file mp4 atau mkv yang didukung</small>
+            </div>
+
+            <div class="form-group">
+                <label for="stream_key">Stream Key YouTube</label>
+                <input type="text" id="stream_key" name="stream_key" required placeholder="Masukkan stream key YouTube">
+            </div>
+
+            <div class="form-group">
+                <label for="video_title">Judul Live</label>
+                <input type="text" id="video_title" name="video_title" required placeholder="Masukkan judul live streaming">
+            </div>
+
+            <div class="form-group">
+                <label for="start_time">Waktu Mulai (Opsional)</label>
+                <input type="datetime-local" id="start_time" name="start_time" class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Simpan & Mulai Live</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-block">Batal</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
