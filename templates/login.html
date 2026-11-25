@@ -3,36 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Streamify</title>
+    <title>yxdesu Stream — Live Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="login-page">
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="login-logo">Streamify</div>
-                <p class="login-subtitle">Rental Live Streaming Dashboard</p>
+<body>
+    <header>
+        <div class="bar">
+            <a class="brand" href="#">
+                <span class="mark"><img src="yxdede123.JPG" alt="logo"></span>
+                <span><b class="brand-name">yxdesu Stream</b></span>
+            </a>
+            <nav class="nav-tabs" id="tabs">
+                <button class="on" data-page="dash">Dashboard</button>
+                <button data-page="create">Buat Live</button>
+                <button data-page="files">Berkas</button>
+                <button data-page="settings">Pengaturan</button>
+            </nav>
+            <div class="head-right">
+                <span class="clock" id="clock">00:00:00 WIB</span>
+                <div class="avatar"><img src="yxdede123.JPG" alt="avatar"></div>
             </div>
-            <form method="POST" action="{{ url_for('login') }}" class="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required placeholder="Masukkan username">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Masukkan password">
-                </div>
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="remember"> Ingat Saya
-                    </label>
-                    <a href="#" class="forgot-link">Lupa Password?</a>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
-            <div class="login-footer">
-                <p>Butuh akses? Hubungi admin.</p>
-            </div>
+        </div>
+    </header>
+    <main>
+        <div class="page-head">
+            <h1>Dashboard</h1>
+            <p>Kelola semua sesi live streaming dari satu tempat.</p>
         </div>
     </div>
 </body>

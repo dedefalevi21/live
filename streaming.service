@@ -1,0 +1,18 @@
+[Unit]
+Description=yxdesu Stream Dashboard (Flask)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/streaming
+Environment=PATH=/opt/streaming/venv/bin
+Environment=FLASK_ENV=production
+ExecStart=/opt/streaming/venv/bin/python app.py
+Restart=always
+RestartSec=3
+StandardOutput=append:/opt/streaming/flask.log
+StandardError=append:/opt/streaming/flask.log
+
+[Install]
+WantedBy=multi-user.target
