@@ -7,12 +7,13 @@ from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, abort
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import secrets
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = secrets.token_hex(32)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+app.permanent_session_lifetime = 3600  # sesi 1 jam
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'database.db').replace('\\', '/')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
@@ -56,9 +57,17 @@ class File(db.Model):
     source = db.Column(db.String(20), default='upload')
 
 
-def auto_login():
-    session['username'] = 'yxdesu'
-    session['user_id'] = 1
+def login_required(f):
+    from functools import wraps
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Silakan login terlebih dahulu.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 def extract_drive_id(url):
@@ -121,14 +130,38 @@ def ensure_schema():
 # ---------------------------------------------------------------------------
 
 @app.route('/')
+@login_required
 def index():
-    auto_login()
     return redirect(url_for('dashboard'))
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password_hash, password):
+            session.clear()
+            session['user_id'] = user.id
+            session['username'] = user.username
+            session['role'] = user.role
+            session.permanent = False
+            return redirect(url_for('dashboard'))
+
+        flash('Username atau password salah.', 'error')
+        return render_template('login.html'), 401
+
+    return render_template('login.html')
+
+
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    auto_login()
     user_id = session.get('user_id')
     lives = LiveStream.query.filter_by(user_id=user_id).order_by(LiveStream.created_at.desc()).all()
     files = File.query.filter_by(user_id=user_id).order_by(File.uploaded_at.desc()).all()
@@ -143,8 +176,8 @@ def logout():
 
 
 @app.route('/create_live', methods=['POST'])
+@login_required
 def create_live():
-    auto_login()
     user_id = session.get('user_id')
     if request.method == 'POST':
         video_id = request.form.get('video_id', '').strip()
@@ -244,8 +277,8 @@ def create_live():
 
 
 @app.route('/start_live/<int:live_id>', methods=['POST'])
+@login_required
 def start_live(live_id):
-    auto_login()
     live = LiveStream.query.filter_by(id=live_id, user_id=session.get('user_id')).first()
     if not live:
         flash('Live stream tidak ditemukan.', 'error')
@@ -303,8 +336,8 @@ def start_live(live_id):
 
 
 @app.route('/stop_live/<int:live_id>', methods=['POST'])
+@login_required
 def stop_live(live_id):
-    auto_login()
     live = LiveStream.query.filter_by(id=live_id, user_id=session.get('user_id')).first()
     if not live:
         flash('Live stream tidak ditemukan.', 'error')
@@ -330,8 +363,8 @@ def stop_live(live_id):
 
 
 @app.route('/delete_live/<int:live_id>')
+@login_required
 def delete_live(live_id):
-    auto_login()
     live = LiveStream.query.filter_by(id=live_id, user_id=session.get('user_id')).first()
     if live:
         # Stop streaming if active
@@ -349,8 +382,8 @@ def delete_live(live_id):
 
 
 @app.route('/delete_file/<int:file_id>')
+@login_required
 def delete_file(file_id):
-    auto_login()
     f = File.query.filter_by(id=file_id, user_id=session.get('user_id')).first()
     if f:
         if f.filepath and os.path.exists(f.filepath):
@@ -365,8 +398,8 @@ def delete_file(file_id):
 
 
 @app.route('/download_drive', methods=['POST'])
+@login_required
 def download_drive():
-    auto_login()
     user_id = session.get('user_id')
     url = request.form.get('drive_url', '').strip()
     file_id = extract_drive_id(url)
@@ -393,8 +426,8 @@ def download_drive():
 
 
 @app.route('/rename_file/<int:file_id>', methods=['POST'])
+@login_required
 def rename_file(file_id):
-    auto_login()
     user_id = session.get('user_id')
     f = File.query.filter_by(id=file_id, user_id=user_id).first()
     if not f:
@@ -431,8 +464,8 @@ def rename_file(file_id):
 
 
 @app.route('/preview/<int:file_id>')
+@login_required
 def preview_file(file_id):
-    auto_login()
     f = File.query.filter_by(id=file_id, user_id=session.get('user_id')).first()
     if not f or not f.filepath or not os.path.exists(f.filepath):
         abort(404)
@@ -440,8 +473,8 @@ def preview_file(file_id):
 
 
 @app.route('/settings')
+@login_required
 def settings():
-    auto_login()
     return render_template('dashboard.html')
 
 

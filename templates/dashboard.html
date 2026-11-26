@@ -180,7 +180,15 @@ td{padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
     </nav>
     <div class="head-right">
       <span class="clock" id="clock">00:00:00 WIB</span>
+      {% if session.get('username') %}
+      <div style="margin-right:8px; font-weight:600; color:#ec4899;">
+        {{ session.username }}
+      </div>
       <div class="avatar"><img src="{{ url_for('static', filename='yxdede123.JPG') }}" alt="avatar" onerror="this.style.display='none'"></div>
+      <a href="{{ url_for('logout') }}" style="padding:7px 14px;border-radius:20px;border:1px solid var(--line);color:var(--muted);font-size:12px;text-decoration:none;transition:.2s">Logout</a>
+      {% else %}
+      <a href="{{ url_for('login') }}" style="padding:7px 14px;border-radius:20px;border:1px solid var(--line);color:var(--muted);font-size:12px;text-decoration:none;transition:.2s">Login</a>
+      {% endif %}
     </div>
   </div>
 </header>
