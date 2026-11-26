@@ -166,7 +166,20 @@ def dashboard():
     lives = LiveStream.query.filter_by(user_id=user_id).order_by(LiveStream.created_at.desc()).all()
     files = File.query.filter_by(user_id=user_id).order_by(File.uploaded_at.desc()).all()
     active = sum(1 for l in lives if l.status == 'active')
-    return render_template('dashboard.html', lives=lives, files=files, active_count=active)
+
+    # Hitung storage terpakai dari file-file user (dalam GB)
+    storage_used_bytes = sum(f.size_bytes or 0 for f in files)
+    storage_used_gb = storage_used_bytes / (1024 * 1024 * 1024)
+    storage_limit_gb = 5  # batas 5 GB
+    storage_free_gb = max(storage_limit_gb - storage_used_gb, 0)
+
+    return render_template('dashboard.html',
+                           lives=lives,
+                           files=files,
+                           active_count=active,
+                           storage_used=storage_used_gb,
+                           storage_limit=storage_limit_gb,
+                           storage_free=storage_free_gb)
 
 
 @app.route('/logout')
